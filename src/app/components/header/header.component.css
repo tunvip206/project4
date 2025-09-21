@@ -1,0 +1,43 @@
+/* HEADER LEFT OPTIMIZED */
+.header__left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0 50px !important;
+
+    margin: 0 !important;
+}
+
+.header__left img {
+    width: 50px !important;
+    height: 50px !important;
+    margin: 0 !important;
+}
+
+.header__left .menu--product-categories {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header__left .menu__toggle {
+    padding: 5px 10px !important;
+    cursor: pointer !important;
+}
+
+.header__left .menu__content {
+    top: 100% !important;
+    left: 0 !important;
+}
+
+.header__title {
+    font-size: 40px !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+    margin: 0 !important;
+}
+
+/* Nếu ps-container padding nhiều */
+.ps-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}

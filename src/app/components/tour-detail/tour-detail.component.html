@@ -1,0 +1,308 @@
+<body>
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <a routerLink="/home" class="breadcrumb__item">Trang chủ</a>
+        <span class="breadcrumb__separator">/</span>
+        <a routerLink="/all-tour" class="breadcrumb__item">Tour</a>
+        <span class="breadcrumb__separator">/</span>
+        <span class="breadcrumb__item breadcrumb__item--active">
+            {{tour.name}}
+        </span>
+    </section>
+    <!-- Nút Đặt Hàng -->
+
+    <div class="tour-title-box">
+        <h1 class="tour-title">
+            {{tour.name}}
+        </h1>
+        <div class="tour-rating">
+            <div class="score-box">9.5</div>
+            <div class="rating-text">
+                <span class="status">Tuyệt vời</span>
+                <span class="count">8 đánh giá</span>
+            </div>
+            <div class="rating-arrow"></div>
+        </div>
+    </div>
+    <div class="tour-gallery-wrapper container">
+
+        <section class="tour-gallery no-container">
+            <!-- Ảnh chính có slide -->
+            <ngx-slick-carousel class="main-image-slider" [config]="mainImageSlideConfig" #slickModal="slick-carousel"
+                (afterChange)="onAfterChange($event)">
+                <div ngxSlickItem *ngFor="let image of images" class="main-image-slide">
+                    <img [src]="image" alt="Main tour image" />
+                </div>
+            </ngx-slick-carousel>
+
+            <!-- Dãy thumbnail ảnh nhỏ -->
+
+            <div class="thumbnail-row">
+                <div class="thumb" *ngFor="let image of images; let i = index" [class.active]="i === currentImageIndex"
+                    (click)="goToSlide(i)">
+                    <img [src]="image" alt="Thumbnail" />
+                </div>
+            </div>
+        </section>
+        <div class="tour-container">
+            <div>
+                <h2 style="color: #3F3B3B;">Lịch Trình và Giá Tour</h2>
+                <p>Chọn Lịch Trình và Xem Giá:</p>
+
+                <p>Thời gian: {{ tour.startDate | date:'dd/MM/yyyy' }} - {{ getEndDate(tour) | date:'dd/MM/yyyy' }}</p>
+
+
+
+                <div class="people-selection">
+                    <div class="person-group">
+                        <label>Số lượng</label>
+
+                        <span class="price">x {{tour.price}} đ</span>
+                        <button (click)="updateCount( -1)">-</button>
+                        <span>{{ adultCount }}</span>
+                        <button (click)="updateCount( 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <span>ⓘ Liên hệ để xác nhận chỗ</span>
+                </div>
+            </div>
+            <div>
+                <!-- 1. Số tiền được giảm -->
+                <div class="price-summary">
+                    <p>Được giảm:
+                        <span class="text-danger fw-bold">
+                            {{ (tour.price * adultCount) - ((tour.price * (1 - tour.discount / 100)) * adultCount) |
+                            number:'1.0-0' }} đ
+                        </span>
+                    </p>
+                </div>
+
+                <!-- 2. Tổng giá sau khi giảm -->
+                <div class="price-summary">
+                    <p>Tổng Giá Tour:
+                        <span class="total-price">
+                            {{ (tour.price * (1 - tour.discount / 100)) * adultCount | number:'1.0-0' }} đ
+                        </span>
+                    </p>
+                </div>
+
+
+                <button class="book-btn" (click)="openOrderModal()">
+                    Yêu cầu đặt
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+    <section class="container">
+
+        <div class="tour-header">
+            <div class="location">
+                <i class="fa fa-map-marker"></i> Khởi hành từ: <strong>Hồ Chí Minh</strong>
+            </div>
+            <div class="icons">
+                <i class="fa fa-plane"></i>
+                <i class="fa fa-bus"></i>
+            </div>
+            <div class="tour-code">
+                Mã Tour: <strong>{{tour.tourId}}</strong>
+            </div>
+        </div>
+        <hr />
+
+        <h3>Tour Trọn Gói bao gồm</h3>
+        <ul class="tour-includes">
+            <li><i class="fa fa-check"></i> Vé máy bay</li>
+            <li><i class="fa fa-check"></i> Vé tham quan</li>
+            <li><i class="fa fa-check"></i> Khách sạn 3-4*</li>
+            <li><i class="fa fa-check"></i> Hướng dẫn viên</li>
+            <li><i class="fa fa-check"></i> 4 Điểm mua sắm</li>
+            <li><i class="fa fa-check"></i> Bảo hiểm du lịch</li>
+
+            <li><i class="fa fa-check"></i>Chụp ảnh miễn phí</li>
+        </ul>
+    </section>
+
+
+    <!-- Trải nghiệm -->
+    <section class="tour-experience container">
+        <h2>Trải nghiệm thú vị</h2>
+        {{tour.description}}
+        <iframe src="https://www.google.com/maps/embed?pb=..." width="100%" height="350" style="border:0;"
+            allowfullscreen loading="lazy"></iframe>
+
+    </section>
+
+    <div class="tour-card container">
+        <div class="tour-header">
+            <h2>Chương trình tour</h2>
+            <a href="#">Xem tất cả</a>
+        </div>
+
+        <!-- Repeat this block for each day -->
+        <div *ngFor="let day of days; let i = index" class="tour-day-wrapper">
+
+            <div class="tour-day" (click)="toggle(i)">
+                <img src="{{day.img}}" alt="day image" *ngIf="activeIndex !== i">
+                <div class="tour-day-content">
+
+                    <div class="day-label">{{ day.label }}</div>
+                    <div class="day-title">{{ day.title }}</div>
+                </div>
+                <div class="arrow">&#9662;</div>
+            </div>
+
+            <div class="tour-day-body" *ngIf="activeIndex === i">
+                <p>{{ day.detail }}</p>
+                <img [src]="day.img" alt="tour image" />
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Đánh giá -->
+    <section class="tour-review container">
+        <h2>Đánh giá từ khách hàng</h2>
+        <div class="review">
+            <div class="review-score">10.0</div>
+            <div class="review-content">
+                <div class="review-name">Lê Minh Tuấn</div>
+                <div class="review-text">Thanks em Huyền đã hỗ trợ đoàn rất tốt!</div>
+                <div class="review-date">21-08-2024</div>
+            </div>
+        </div>
+        <div class="review">
+            <div class="review-score">8.0</div>
+            <div class="review-content">
+                <div class="review-name"> Trần Thị Cẩm Vy</div>
+                <div class="review-text">Dù là tour ghép nhưng iVIVU đã lựa chọn công ty tổ chức tour rất chuyên nghiệp,
+                    2 bạn trưởng đoàn và HDV tại Nhật rất tận tâm và chu đáo ! cảm ơn iVIVU nhiều... Hẹn gặp lại 1
+                    chương trình tour khác. Bạn Huyền tư vấn rất tận tâm.</div>
+                <div class="review-date">21-08-2024</div>
+            </div>
+        </div>
+        <div class="review">
+            <div class="review-score">10.0</div>
+            <div class="review-content">
+                <div class="review-name"> Lương Thị Bình An</div>
+                <div class="review-text">Tour đi hơi nhanh, những chỗ tham quan ít có chỗ ngồi nghĩ ngơi. Hướng dẫn viên
+                    người việt anh Huy rất nhiệt tình hướng dẫn</div>
+                <div class="review-date">01-01-2023</div>
+            </div>
+        </div>
+        <div class="review">
+            <div class="review-score">7.0</div>
+            <div class="review-content">
+                <div class="review-name"> Tran Le Thuy</div>
+                <div class="review-text">Tour du lịch Thái vui. Hướng dẫn viên của VN là em Lợi Văn -Jame và các HDV của
+                    Thái Lan gồm em Tâm em Boy hỗ trợ khách rất nhiệt tình. Ấn tượng tốt về đất nước và con người Thái
+                    Lan.</div>
+                <div class="review-date">11-01-2022</div>
+            </div>
+        </div>
+    </section>
+    <div class="ps-section__content container" style="height: 350px;">
+
+        <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
+            <div ngxSlickItem *ngFor="let item of tours | paginate: { itemsPerPage: 8, currentPage: 0}" class="slide">
+                <div class="ps-product">
+                    <div class="ps-product__thumbnail">
+                        <a href="javascript:void(0);">
+                            <img [src]="item.image" [routerLink]="['/tour-detail/'+item.tourId]" alt="" />
+                        </a>
+                        <div class="ps-product__badge">-{{item.discount}}%</div>
+                        <ul class="ps-product__actions">
+                            <li><a href="javascript:void(0);"
+                                    (click)="addCart(item.tourId, item.price*(1 - item.discount/100))"
+                                    data-toggle="tooltip" data-placement="top" title="Thêm Giỏ Hàng"><i
+                                        class="icon-bag2"></i></a></li>
+                            <li><a [routerLink]="['/tour-detail/'+item.tourId]" data-toggle="tooltip"
+                                    data-placement="top" title="Xem Chi Tiết"><i class="icon-eye"></i></a>
+                            </li>
+                            <li><a href="javascript:void(0);" (click)="toggleLike(item.tourId)" data-toggle="tooltip"
+                                    data-placement="top" title="Yêu Thích"><i class="icon-heart"></i></a></li>
+                        </ul>
+                    </div>
+                    <div class="ps-product__container">
+                        <a class="ps-product__vendor" href="javascript:void(0);">
+                            <span> {{item.category.categoryName}}</span>
+                        </a>
+                        <div class="ps-product__content">
+                            <a class="ps-product__title" [routerLink]="['/tour-detail/'+item.tourId]">{{item.name}}</a>
+                            <div class="ps-product__desc" *ngIf="getAvgRate(item.tourId)>0">
+                                <ngb-rating [rate]="getAvgRate(item.tourId)" [readonly]="true" [max]="5"
+                                    title="{{getAvgRate(item.tourId)}} sao">
+                                </ngb-rating>
+                                ({{countRate}} đánh giá)
+                            </div>
+                            <p class="ps-product__price sale">
+                                <del *ngIf="item.discount != 0">{{item.price|currency:'VND'}}</del>
+                                {{item.price*(1 - item.discount/100) | currency:'VND'}}
+                            </p>
+                        </div>
+                        <div class="ps-product__content hover">
+                            <a class="ps-product__title" [routerLink]="['/tour-detail/'+item.tourId]">{{item.name}}</a>
+                            <div class="ps-product__desc" *ngIf="getAvgRate(item.tourId)>0">
+                                <ngb-rating [rate]="getAvgRate(item.tourId)" [readonly]="true" [max]="5"
+                                    title="{{getAvgRate(item.tourId)}} sao">
+                                </ngb-rating>
+                                ({{countRate}} đánh giá)
+                            </div>
+                            <p class="ps-product__price sale">
+                                <del *ngIf="item.discount != 0">{{item.price|currency:'VND'}}</del>
+                                {{item.price*(1 - item.discount/100) | currency:'VND'}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ngx-slick-carousel>
+    </div>
+    <!-- Modal -->
+    <ng-template #orderModal let-modal>
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold">Yêu cầu đặt</h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+        </div>
+        <div class="modal-body">
+            <p class="text-muted">
+                Chúng tôi sẽ liên hệ với bạn ngay khi nhận được yêu cầu. Vui lòng điền thông tin:
+            </p>
+
+            <form [formGroup]="orderForm"
+                (ngSubmit)="submitOrder((tour.price * (1 - tour.discount / 100)) * adultCount, tour.tourId)">
+
+                <div class="mb-3">
+                    <label class="form-label">Họ và Tên *</label>
+                    <input class="form-control" formControlName="name" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại *</label>
+                    <input class="form-control" formControlName="phone" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email (tuỳ chọn)</label>
+                    <input class="form-control" formControlName="email" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ghi chú / Yêu cầu thêm</label>
+                    <textarea class="form-control" formControlName="note"
+                        placeholder="VD: 2 người lớn, đoàn 10 người..."></textarea>
+                </div>
+
+                <button type="submit" class="book-btn">Gửi yêu cầu</button>
+            </form>
+        </div>
+    </ng-template>
+
+</body>
